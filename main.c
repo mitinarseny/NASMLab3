@@ -48,6 +48,7 @@ void f(int8_t x1, int8_t x2, int8_t x3) {
 int main() {
     int8_t tests[][3] = {
         {0, 0, 0},
+        {0, 0, 1},
         {1, 1, 1},
         {1, 2, 3},
         {3, 2, 1}, 
