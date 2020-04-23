@@ -14,7 +14,7 @@ void f(int8_t x1, int8_t x2, int8_t x3) {
     __asm__(
         ".intel_syntax noprefix\n\t" // ensure intel syntax
         "push ax\n\t"
-        "div bl\n\t"                 // (x1 / 3) -> 
+        "div bl\n\t"
         "cmp al, cl\n\t"
         "jne 1f\n\t"
         "cmp ah, dl\n\t"
