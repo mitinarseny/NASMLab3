@@ -15,60 +15,40 @@ void c(char s[4]) {
 
 void f(char s[4]) {
 	__asm__(
-		"movb (%[s]), %%al # AL <- s[0]\n\t"
-		"subb $48, %%al    # AL <- s1\n\t"
-		"movb 1(%[s]), %%dl# DL <- s[1]\n\t"
-		"subb $48, %%dl    # DL <- s2\n\t"
-		"divb %[d]         # AL <- (s1 / 3), AH <- (s1 mod 3)\n\t"
-		"cmpb %%al, %%dl   # if (s1 / 3 != s2)\n\t"
-		"jne 1f            #     goto 1\n"
+		"# convert chars to numbers\n\t"
+		"subb $48,  (%[s])  # s[0] := s[0] - '0'\n\t"
+		"subb $48, 1(%[s])  # s[1] := s[1] - '0'\n\t"
+		"subb $48, 2(%[s])  # s[2] := s[2] - '0'\n\t"
+		"movb (%[s]), %%al  # AL <- s[0]\n\t"
+		"divb %[d]          # AL <- (s[0] / 3), AH <- (s[0] mod 3)\n\t"
+		"cmpb %%al, 1(%[s]) # if (s[0] / 3 != s[1])\n\t"
+		"jne 1f             #     goto 1\n\t"
+		"cmpb %%ah, 2(%[s]) # if (s[0] mod 3 != s[2])\n\t"
+		"jne 1f             #     goto 1\n"
+		"movb $5, %%cl      # CL <- 5\n\t"
+		"subb 1(%[s]), %%cl # CL <- 5 - s[1]\n\t"
+		"movb %%cl, 1(%[s]) # s[1] <- 5 - s[1]\n\t"
+		"movb $5, %%cl      # CL <- 5\n\t"
+		"subb 2(%[s]), %%cl # CL <- 5 - s[2]\n\t"
+		"movb %%cl, 2(%[s]) # s[2] <- 5 - s[2]\n\t"
+		"jmp 2f             # goto 2\n"
 		"1:\n\t"
-		"cmpb $0, %%al     # if (s1 == 0)\n\t"
-		"je 2f             #     goto 2\n\t"
-		"\n"
+		"cmpb $0, (%[s])    # if (s1 == 0)\n\t"
+		"je 2f              #     goto 2\n\t"
+		"subb $1, (%[s])    # s1 := s1 - 1\n"
 		"2:\n\t"
-		"nop\n\t"
+		"# bring chars back\n\t"
+		"addb $48,  (%[s])  # s[0] := s[0] + '0'\n\t"
+		"addb $48, 1(%[s])  # s[1] := s[1] + '0'\n\t"
+		"addb $48, 2(%[s])  # s[2] := s[2] + '0'\n\t"
+		"\n\t"
 	: "=S" (s)
 	: [s] "S" (s),
-	[d] "b" ((int8_t)3),
-	[com] "c" ((int8_t)5)
+	[d] "b" ((int8_t)3)
+	: "al", "ah"
 	);
 	printf("%s\n", s);
 }
-
-/* void f(int8_t s[3]) { */
-/*     __asm__( */
-/* 		"push %%ax\n\t" */
-/* 		"mov cl, ()" */
-/*         "div bl\n\t" */
-/*         "cmp al, \t" */
-/*         "jne 1f\n\t" */
-/*         "cmp ah, dl\n\t" */
-/*         "jnz 1f\n\t" */
-/*         "mov al, 5\n\t" */
-/*         "sub al, cl\n\t" */
-/*         "mov cl, al\n\t" */
-/*         "mov al, 5\n\t" */
-/*         "sub al, dl\n\t" */
-/*         "mov dl, al\n\t" */
-/*         "pop ax\n\t" */
-/*         "jmp 2f\n" */
-/*         "1:\n\t" */
-/*         "pop ax\n\t" */
-/*         "cmp al, 0\n\t" */
-/*         "jz 2f\n\t" */
-/*         "sub al, 1\n" */
-/*         "2:\n\t" */
-/*         "nop" */
-/*     : "=S" (s) // AL -> x1 */
-/*     : [s] "S" (s), // x1 -> AL */
-/*     [d] "b" (3),     // 3  -> BL */
-/*     [com] "c" (5)   // x2 -> CL */
-/*     ); */
-/* 	for (int i = 0; i < 3; i++) */
-/* 		printf("%d", s[i]); */
-/* 	printf("\n"); */
-/* } */
 
 int main() {
     char tests[][2][4] = {
