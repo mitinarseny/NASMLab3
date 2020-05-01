@@ -45,7 +45,7 @@ void f(char s[4]) {
 	: "=S" (s)
 	: [s] "S" (s),
 	[d] "b" ((int8_t)3)
-	: "al", "ah"
+	: "al", "ah", "cl"
 	);
 	printf("%s\n", s);
 }
