@@ -10,11 +10,30 @@ void c(char s[4]) {
 	} else if (s1 != 0) {
 		s1 -= 1;
 	}
-	printf("%d%d%d\n", s1, s2, s3);
+	printf("%d%d%d", s1, s2, s3);
 }
 
-void f(char s[3]) {
-	
+void f(char s[4]) {
+	__asm__(
+		"movb (%[s]), %%al # AL <- s[0]\n\t"
+		"subb $48, %%al    # AL <- s1\n\t"
+		"movb 1(%[s]), %%dl# DL <- s[1]\n\t"
+		"subb $48, %%dl    # DL <- s2\n\t"
+		"divb %[d]         # AL <- (s1 / 3), AH <- (s1 mod 3)\n\t"
+		"cmpb %%al, %%dl   # if (s1 / 3 != s2)\n\t"
+		"jne 1f            #     goto 1\n"
+		"1:\n\t"
+		"cmpb $0, %%al     # if (s1 == 0)\n\t"
+		"je 2f             #     goto 2\n\t"
+		"\n"
+		"2:\n\t"
+		"nop\n\t"
+	: "=S" (s)
+	: [s] "S" (s),
+	[d] "b" ((int8_t)3),
+	[com] "c" ((int8_t)5)
+	);
+	printf("%s\n", s);
 }
 
 /* void f(int8_t s[3]) { */
@@ -68,7 +87,9 @@ int main() {
 
     for (int n = 0; n < sizeof(tests) / sizeof(*tests); n++) {
 		printf("f(%s): [should be %s] ", tests[n][0], tests[n][1]);
-		c(tests[n][0]);
+		/* c(tests[n][0]); */
+		printf(" ");
+		f(tests[n][0]);
         /* f(tests[n]); */
     }
 }
