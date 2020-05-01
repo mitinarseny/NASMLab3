@@ -67,9 +67,6 @@ int main() {
 
     for (int n = 0; n < sizeof(tests) / sizeof(*tests); n++) {
 		printf("f(%s): [should be %s] ", tests[n][0], tests[n][1]);
-		/* c(tests[n][0]); */
-		printf(" ");
 		f(tests[n][0]);
-        /* f(tests[n]); */
     }
 }
