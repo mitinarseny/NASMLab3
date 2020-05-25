@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include <string.h>
 
-void c(char s[4]) {
+void c(char s[3]) {
 	int8_t s1 = s[0] - '0';
 	int8_t s2 = s[1] - '0';
 	int8_t s3 = s[2] - '0';
@@ -50,23 +51,23 @@ void f(char s[4]) {
 	printf("%s\n", s);
 }
 
-int main() {
-    char tests[][2][4] = {
-		{"000", "055"},
-		{"001", "001"},
-		{"111", "011"},
-		{"123", "023"},
-		{"321", "221"},
-		{"555", "455"},
-		{"411", "444"},
-		{"412", "312"},
-		{"721", "734"},
-		{"930", "925"},
-		{"938", "838"},
-    };
+int main() {	
+	while (1) {
+		char s[4];
+		printf("Enter string with 3 digits (or <Ctrl+C> to exit): ");
+		scanf("%s", s);
+		for (int i = 0; i < 3; i++) {
+			if (s[i] < '0' || s[i] > '9') {
+				printf("Wrong format! Try again.\n");
+				goto OUTER;
+			}
+		}
+		if (s[3] != '\0') {
+			printf("Wrong format! Try again.\n");
+			continue;
+		}
 
-    for (int n = 0; n < sizeof(tests) / sizeof(*tests); n++) {
-		printf("f(%s): [should be %s] ", tests[n][0], tests[n][1]);
-		f(tests[n][0]);
-    }
+		f(s);
+		OUTER: continue;
+	}
 }
